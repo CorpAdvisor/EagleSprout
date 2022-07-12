@@ -5,6 +5,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.Gdx;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
 
 public class EagleSprout extends ApplicationAdapter {
 	OrthographicCamera camera;
@@ -22,6 +24,8 @@ public class EagleSprout extends ApplicationAdapter {
 	TiledMapRenderer mapRenderer;
 	SpriteBatch batch;
 	Entity Fox;
+	BitmapFont font;
+	Matrix4 projectionDefault;
 	
 	Boolean keyUpPressed = false;
 	Boolean keyDownPressed = false;
@@ -34,8 +38,13 @@ public class EagleSprout extends ApplicationAdapter {
         camera.setToOrtho(false, 800, 600);
         camera.update();
         
+        projectionDefault = new Matrix4();
+		projectionDefault.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        
         map = new TmxMapLoader().load("maps/Map0.tmx");
         mapRenderer = new IsometricTiledMapRenderer(map);
+        
+        font = new BitmapFont();
         
         Fox = new Entity(0);
         
@@ -72,11 +81,17 @@ public class EagleSprout extends ApplicationAdapter {
 		batch.begin();
 		Fox.render(batch);
 		batch.end();
+		
+		batch.setProjectionMatrix(projectionDefault);
+		batch.begin();
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, Gdx.graphics.getHeight() - 5);
+		batch.end();
 	}
 	
 	@Override
 	public void dispose () {
 		Fox.dispose();
 		map.dispose();
+		batch.dispose();
 	}
 }
