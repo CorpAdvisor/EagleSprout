@@ -15,14 +15,18 @@ public class Entity {
 	float animTime;
 	float aiTime;
 	Vector3 position;
-	Boolean moveRight = true;
+	Boolean moving = true;
+	Vector3 targetPosition;
+	float waitToMove = 5.0f;
 	
 	private Matrix4 isoTransform;
 	private Vector3 screenPos = new Vector3();
 	
 	public Entity(int type) {
-		position = new Vector3(0, 0, 0);
+		position = new Vector3(randomInt(0, 19 * 64), randomInt(0, 19 * 64), 0);
 		loadSprite(type);
+		
+		generateNewPosition();
 		
 		isoTransform = new Matrix4();
 		isoTransform.idt();
@@ -41,26 +45,99 @@ public class Entity {
 	}
 	
 	public void update() {
-		aiTime += 10;
-		
-		if (aiTime > 30) {
-			if (moveRight) {
-				position.x += 2;
-				if (position.x > 400) moveRight = false;
-			} else if (!moveRight) {
-    			position.x -= 2;
-    			if (position.x < 0) moveRight = true;
+		if (!moving) {
+    		aiTime += Gdx.graphics.getDeltaTime();
+    		
+    		if (aiTime > waitToMove) {
+    			moving = true;
+    			generateNewPosition();
+    			aiTime = 0;
+    		}
+		} else if (moving) {
+			aiTime += Gdx.graphics.getDeltaTime();
+			
+			if (aiTime > 0.06f) {
+    			processMovement();
+    			
+    			if (position.x == targetPosition.x && position.y == targetPosition.y) {
+    				moving = false;
+    				waitToMove = (float)randomInt(3, 8);
+    			}
+    			
+    			aiTime = 0;
 			}
-			aiTime = 0;
 		}
+	}
+	
+	private void generateNewPosition() {
+		int randomX = 0, randomY = 0;
+		
+		if (position.x == 0) {
+			randomX = randomInt(0, 800);
+		} else {
+			randomX = randomInt(-800, 800);
+		}
+		
+		if (position.y == 0) {
+			randomY = randomInt(0, 800);
+		} else {
+			randomY = randomInt(-800, 800);
+		}
+		
+		targetPosition = clampMapSize(position.x + randomX, position.y + randomY);
+	}
+	
+	private Vector3 clampMapSize(float x, float y) {
+		Vector3 position = new Vector3(x, y, 0);
+		
+		if (x < 0) {
+			position.x = 0;
+		} else if (x > 19 * 64) {
+			position.x = 19 * 64;
+		}
+		
+		if (y < 0) {
+			position.y = 0;
+		} else if (y > 19 * 64) {
+			position.y = 19 * 64;
+		}
+		
+		return position;
+	}
+	
+	private void processMovement() {
+		if (targetPosition.x > position.x) {
+			position.x += 4;
+			if (targetPosition.x < position.x) position.x = targetPosition.x;
+		} else if (targetPosition.x < position.x) {
+			position.x -= 4;
+			if (targetPosition.x > position.x) position.x = targetPosition.x;
+		}
+		
+		if (targetPosition.y > position.y) {
+			position.y += 4;
+			if (targetPosition.y < position.y) position.y = targetPosition.y;
+		} else if (targetPosition.y < position.y) {
+			position.y -= 4;
+			if (targetPosition.y > position.y) position.y = targetPosition.y;
+		}
+	}
+	
+	private int randomInt(int min, int max) {
+		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 	
 	public void render(SpriteBatch batch) {
 		animTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
 		
 		// Get current frame of animation for the current stateTime
-		TextureRegion currentFrame = walkingAnim.getKeyFrame(animTime, true);
-		batch.draw(currentFrame, worldToIso(position).x, worldToIso(position).y);
+		if (moving) {
+			TextureRegion currentFrame = walkingAnim.getKeyFrame(animTime, true);
+			batch.draw(currentFrame, worldToIso(position).x, worldToIso(position).y);
+		} else if (!moving) {
+			TextureRegion currentFrame = walkingAnim.getKeyFrame(0, false);
+			batch.draw(currentFrame, worldToIso(position).x, worldToIso(position).y);
+		}
 	}
 	
 	private void loadSprite(int type) {

@@ -23,9 +23,13 @@ public class EagleSprout extends ApplicationAdapter {
 	TiledMap map;
 	TiledMapRenderer mapRenderer;
 	SpriteBatch batch;
-	Entity Fox;
+	Entity Fox[] = new Entity[6];
 	BitmapFont font;
 	Matrix4 projectionDefault;
+	
+	final int mapWidth = 29;
+	final int mapHeight = 29;
+	final int scale = 64;
 	
 	Boolean keyUpPressed = false;
 	Boolean keyDownPressed = false;
@@ -46,7 +50,9 @@ public class EagleSprout extends ApplicationAdapter {
         
         font = new BitmapFont();
         
-        Fox = new Entity(0);
+        for (int i = 0; i < Fox.length; i++) {
+        	Fox[i] = new Entity(0);
+        }
         
         batch = new SpriteBatch();
         
@@ -75,11 +81,15 @@ public class EagleSprout extends ApplicationAdapter {
 		mapRenderer.setView(camera);
 		mapRenderer.render();
 		
-		Fox.update();
+		for (int i = 0; i < Fox.length; i++) {
+        	Fox[i].update();
+        }
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		Fox.render(batch);
+		for (int i = 0; i < 6; i++) {
+        	Fox[i].render(batch);
+        }
 		batch.end();
 		
 		batch.setProjectionMatrix(projectionDefault);
@@ -90,7 +100,9 @@ public class EagleSprout extends ApplicationAdapter {
 	
 	@Override
 	public void dispose () {
-		Fox.dispose();
+		for (int i = 0; i < Fox.length; i++) {
+        	Fox[i].dispose();
+        }
 		map.dispose();
 		batch.dispose();
 	}
