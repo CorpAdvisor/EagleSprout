@@ -26,11 +26,11 @@ public class Entity {
 	private Matrix4 isoTransform;
 	private Vector3 screenPos = new Vector3();
 	
-	public Entity(int type, int mapWidth, int mapHeight) {
+	public Entity(int type, int mapWidth, int mapHeight, float x, float y) {
 		this.mapWidth = mapWidth;
 		this.mapHeight = mapHeight;
 		
-		position = new Vector3(randomInt(0, mapWidth * scale), randomInt(0, mapHeight * scale), 0);
+		position = new Vector3(x, y, 0);
 		loadSprite(type);
 		
 		generateNewPosition();

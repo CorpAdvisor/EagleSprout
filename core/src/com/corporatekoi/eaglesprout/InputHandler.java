@@ -44,7 +44,11 @@ public class InputHandler implements InputProcessor {
     }
     
     public boolean touchDown (int x, int y, int pointer, int button) {
-    	return false;
+    	if (button == Input.Buttons.LEFT) {
+    		game.createBase(x, y);
+    		return true;
+    	}
+    	return true;
     }
     
     public boolean touchUp (int x, int y, int pointer, int button) {

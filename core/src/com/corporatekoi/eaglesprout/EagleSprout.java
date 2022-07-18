@@ -1,5 +1,7 @@
 package com.corporatekoi.eaglesprout;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.ApplicationAdapter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,7 +24,8 @@ public class EagleSprout extends ApplicationAdapter {
 	TiledMap map;
 	TiledMapRenderer mapRenderer;
 	SpriteBatch batch;
-	Entity Fox[] = new Entity[100];
+	ArrayList<Entity> Fox = new ArrayList<Entity>();
+	Base Hub;
 	BitmapFont font;
 	Matrix4 projectionDefault;
 	Music bgMusic;
@@ -61,10 +64,6 @@ public class EagleSprout extends ApplicationAdapter {
         
         font = new BitmapFont();
         
-        for (int i = 0; i < Fox.length; i++) {
-        	Fox[i] = new Entity(0, mapWidth, mapHeight);
-        }
-        
         InputHandler inputProcessor = new InputHandler(this);
         Gdx.input.setInputProcessor(inputProcessor);
         
@@ -80,9 +79,22 @@ public class EagleSprout extends ApplicationAdapter {
 		screenPos.set(vec.x, vec.y, 0);
 		screenPos.mul(isoTransform);
 		//screenPos.x -= 50;
-		screenPos.y -= 60;
+		//screenPos.y -= 60;
 		
 		return screenPos;
+	}
+	
+	public void createBase(float x, float y) {
+		if (Hub == null) {
+			Vector3 position = new Vector3(x, y, 0);
+			camera.unproject(position);
+			position = worldToIso(position);
+			Hub = new Base(this, 0, mapWidth, mapHeight, position.x, position.y);
+		}
+	}
+	
+	public void createFox(float x, float y) {
+		Fox.add(new Entity(0, mapWidth, mapHeight, x, y));
 	}
 	
 	@Override
@@ -105,9 +117,13 @@ public class EagleSprout extends ApplicationAdapter {
 		
 		mapRenderer.setView(camera);
 		
-		for (int i = 0; i < Fox.length; i++) {
-        	Fox[i].update();
-        }
+		if (Hub != null) Hub.processBase();
+		
+		if (!Fox.isEmpty()) {
+    		for (int i = 0; i < Fox.size(); i++) {
+            	Fox.get(i).update();
+            }
+		}
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.enableBlending();
@@ -118,9 +134,13 @@ public class EagleSprout extends ApplicationAdapter {
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Bottom"));
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Mid"));
 		
-		for (int i = 0; i < Fox.length; i++) {
-        	Fox[i].render(batch);
-        }
+		if (!Fox.isEmpty()) {
+    		for (int i = 0; i < Fox.size(); i++) {
+            	Fox.get(i).render(batch);
+            }
+		}
+		
+		if (Hub != null) Hub.render(batch);
 		
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Top"));
 		
@@ -147,9 +167,12 @@ public class EagleSprout extends ApplicationAdapter {
 	
 	@Override
 	public void dispose () {
-		for (int i = 0; i < Fox.length; i++) {
-        	Fox[i].dispose();
-        }
+		if (!Fox.isEmpty()) {
+    		for (int i = 0; i < Fox.size(); i++) {
+            	Fox.get(i).dispose();
+            }
+		}
+		if (Hub != null) Hub.dispose();
 		map.dispose();
 		batch.dispose();
 		bgMusic.dispose();
