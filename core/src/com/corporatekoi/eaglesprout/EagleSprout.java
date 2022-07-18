@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
@@ -23,7 +24,7 @@ public class EagleSprout extends ApplicationAdapter {
 	TiledMap map;
 	TiledMapRenderer mapRenderer;
 	SpriteBatch batch;
-	Entity Fox[] = new Entity[6];
+	Entity Fox[] = new Entity[100];
 	BitmapFont font;
 	Matrix4 projectionDefault;
 	
@@ -45,16 +46,16 @@ public class EagleSprout extends ApplicationAdapter {
         projectionDefault = new Matrix4();
 		projectionDefault.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         
+		batch = new SpriteBatch();
+		
         map = new TmxMapLoader().load("maps/Map0.tmx");
-        mapRenderer = new IsometricTiledMapRenderer(map);
+        mapRenderer = new IsometricTiledMapRenderer(map, batch);
         
         font = new BitmapFont();
         
         for (int i = 0; i < Fox.length; i++) {
-        	Fox[i] = new Entity(0);
+        	Fox[i] = new Entity(0, mapWidth, mapHeight);
         }
-        
-        batch = new SpriteBatch();
         
         InputHandler inputProcessor = new InputHandler(this);
         Gdx.input.setInputProcessor(inputProcessor);
@@ -79,7 +80,6 @@ public class EagleSprout extends ApplicationAdapter {
 		}
 		
 		mapRenderer.setView(camera);
-		mapRenderer.render();
 		
 		for (int i = 0; i < Fox.length; i++) {
         	Fox[i].update();
@@ -87,9 +87,16 @@ public class EagleSprout extends ApplicationAdapter {
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		for (int i = 0; i < 6; i++) {
+		
+		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Bottom"));
+		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Mid"));
+		
+		for (int i = 0; i < Fox.length; i++) {
         	Fox[i].render(batch);
         }
+		
+		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Top"));
+		
 		batch.end();
 		
 		batch.setProjectionMatrix(projectionDefault);

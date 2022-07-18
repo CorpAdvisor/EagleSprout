@@ -19,11 +19,18 @@ public class Entity {
 	Vector3 targetPosition;
 	float waitToMove = 5.0f;
 	
+	int mapWidth = 29;
+	int mapHeight = 29;
+	int scale = 64;
+	
 	private Matrix4 isoTransform;
 	private Vector3 screenPos = new Vector3();
 	
-	public Entity(int type) {
-		position = new Vector3(randomInt(0, 19 * 64), randomInt(0, 19 * 64), 0);
+	public Entity(int type, int mapWidth, int mapHeight) {
+		this.mapWidth = mapWidth;
+		this.mapHeight = mapHeight;
+		
+		position = new Vector3(randomInt(0, mapWidth * scale), randomInt(0, mapHeight * scale), 0);
 		loadSprite(type);
 		
 		generateNewPosition();
@@ -61,7 +68,7 @@ public class Entity {
     			
     			if (position.x == targetPosition.x && position.y == targetPosition.y) {
     				moving = false;
-    				waitToMove = (float)randomInt(3, 8);
+    				waitToMove = (float)randomInt(3, 6);
     			}
     			
     			aiTime = 0;
@@ -92,14 +99,14 @@ public class Entity {
 		
 		if (x < 0) {
 			position.x = 0;
-		} else if (x > 19 * 64) {
-			position.x = 19 * 64;
+		} else if (x > mapWidth * scale) {
+			position.x = mapWidth * scale;
 		}
 		
 		if (y < 0) {
 			position.y = 0;
-		} else if (y > 19 * 64) {
-			position.y = 19 * 64;
+		} else if (y > mapHeight * scale) {
+			position.y = mapHeight * scale;
 		}
 		
 		return position;
