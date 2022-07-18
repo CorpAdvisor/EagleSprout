@@ -2,16 +2,11 @@ package com.corporatekoi.eaglesprout;
 
 import com.badlogic.gdx.ApplicationAdapter;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -86,6 +81,9 @@ public class EagleSprout extends ApplicationAdapter {
         }
 		
 		batch.setProjectionMatrix(camera.combined);
+		batch.enableBlending();
+		
+		// start the main drawing
 		batch.begin();
 		
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Bottom"));
@@ -97,8 +95,10 @@ public class EagleSprout extends ApplicationAdapter {
 		
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Top"));
 		
+		// end the main drawing
 		batch.end();
 		
+		// separate the top level drawing for UI
 		batch.setProjectionMatrix(projectionDefault);
 		batch.begin();
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, Gdx.graphics.getHeight() - 5);

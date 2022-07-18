@@ -140,7 +140,9 @@ public class Entity {
 		// Get current frame of animation for the current stateTime
 		if (moving) {
 			TextureRegion currentFrame = walkingAnim.getKeyFrame(animTime, true);
+			//transparency fun for use later - batch.setColor(1f, 1f, 1f, 0.5f);
 			batch.draw(currentFrame, worldToIso(position).x, worldToIso(position).y);
+			//reset the transparency - batch.setColor(1f, 1f, 1f, 1f);
 		} else if (!moving) {
 			TextureRegion currentFrame = walkingAnim.getKeyFrame(0, false);
 			batch.draw(currentFrame, worldToIso(position).x, worldToIso(position).y);
