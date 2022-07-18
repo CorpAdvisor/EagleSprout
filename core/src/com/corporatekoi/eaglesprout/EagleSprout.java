@@ -15,6 +15,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 
 public class EagleSprout extends ApplicationAdapter {
 	OrthographicCamera camera;
@@ -34,6 +35,10 @@ public class EagleSprout extends ApplicationAdapter {
 	Boolean keyDownPressed = false;
 	Boolean keyLeftPressed = false;
 	Boolean keyRightPressed = false;
+	
+	private Matrix4 isoTransform;
+	private Vector3 screenPos = new Vector3();
+	Vector3 testMouse = new Vector3(0, 0, 0);
 	
 	@Override
 	public void create () {
@@ -62,6 +67,22 @@ public class EagleSprout extends ApplicationAdapter {
         
         InputHandler inputProcessor = new InputHandler(this);
         Gdx.input.setInputProcessor(inputProcessor);
+        
+        isoTransform = new Matrix4();
+		isoTransform.idt();
+		
+		isoTransform.scale((float)(Math.sqrt(2.0) / 2.0), (float)(Math.sqrt(2.0) / 4.0), 1.0f);
+		isoTransform.rotate(0.0f, 0.0f, 1.0f, -45);
+		isoTransform.inv();
+	}
+	
+	private Vector3 worldToIso(Vector3 vec) {
+		screenPos.set(vec.x, vec.y, 0);
+		screenPos.mul(isoTransform);
+		//screenPos.x -= 50;
+		screenPos.y -= 60;
+		
+		return screenPos;
 	}
 	
 	@Override
@@ -110,6 +131,17 @@ public class EagleSprout extends ApplicationAdapter {
 		batch.setProjectionMatrix(projectionDefault);
 		batch.begin();
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, Gdx.graphics.getHeight() - 5);
+		font.draw(batch, "Mouse X: " + Gdx.input.getX() + ", Y: " + Gdx.input.getY(), 5, Gdx.graphics.getHeight() - 25);
+		
+		// testing mouse to iso coords
+		testMouse.x = Gdx.input.getX();
+		testMouse.y = Gdx.input.getY();
+		
+		camera.unproject(testMouse);
+		
+		font.draw(batch, "Mouse Iso X: " + worldToIso(testMouse).x + ", Y: " + worldToIso(testMouse).y, 5, Gdx.graphics.getHeight() - 45);
+		
+		font.draw(batch, "Camera X: " + camera.position.x + ", Y: " + camera.position.y, 5, Gdx.graphics.getHeight() - 65);
 		batch.end();
 	}
 	
