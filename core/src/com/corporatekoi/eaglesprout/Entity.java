@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Entity {
 	
+	EagleSprout game;
+	
 	Texture spriteSheet;
 	Animation<TextureRegion> walkingAnim;
 	float animTime;
@@ -19,6 +21,8 @@ public class Entity {
 	Vector3 targetPosition;
 	float waitToMove = 5.0f;
 	
+	int numFrames;
+	
 	int mapWidth = 29;
 	int mapHeight = 29;
 	int scale = 64;
@@ -26,7 +30,9 @@ public class Entity {
 	private Matrix4 isoTransform;
 	private Vector3 screenPos = new Vector3();
 	
-	public Entity(int type, int mapWidth, int mapHeight, float x, float y) {
+	public Entity(EagleSprout game, int type, int mapWidth, int mapHeight, float x, float y) {
+		this.game = game;
+		
 		this.mapWidth = mapWidth;
 		this.mapHeight = mapHeight;
 		
@@ -46,7 +52,7 @@ public class Entity {
 		screenPos.set(vec.x, vec.y, 0);
 		screenPos.mul(isoTransform);
 		screenPos.x += 16;
-		screenPos.y += 8;
+		screenPos.y += 16;
 		
 		return screenPos;
 	}
@@ -68,7 +74,7 @@ public class Entity {
     			
     			if (position.x == targetPosition.x && position.y == targetPosition.y) {
     				moving = false;
-    				waitToMove = (float)randomInt(3, 6);
+    				waitToMove = (float)game.randomInt(3, 6);
     			}
     			
     			aiTime = 0;
@@ -80,15 +86,15 @@ public class Entity {
 		int randomX = 0, randomY = 0;
 		
 		if (position.x == 0) {
-			randomX = randomInt(0, 800);
+			randomX = game.randomInt(0, 800);
 		} else {
-			randomX = randomInt(-800, 800);
+			randomX = game.randomInt(-800, 800);
 		}
 		
 		if (position.y == 0) {
-			randomY = randomInt(0, 800);
+			randomY = game.randomInt(0, 800);
 		} else {
-			randomY = randomInt(-800, 800);
+			randomY = game.randomInt(-800, 800);
 		}
 		
 		targetPosition = clampMapSize(position.x + randomX, position.y + randomY);
@@ -130,10 +136,6 @@ public class Entity {
 		}
 	}
 	
-	private int randomInt(int min, int max) {
-		return min + (int)(Math.random() * ((max - min) + 1));
-	}
-	
 	public void render(SpriteBatch batch) {
 		animTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
 		
@@ -153,20 +155,26 @@ public class Entity {
 		
 		switch (type) {
 			case 0 :
+				spriteSheet = new Texture(Gdx.files.internal("graphics/sprites/bird.png"));
+				break;
+			case 1 :
 				spriteSheet = new Texture(Gdx.files.internal("graphics/sprites/fox.png"));
+				break;
 		}
 		
+		numFrames = spriteSheet.getWidth() / 32;
+		
 		TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
-				spriteSheet.getWidth() / 8,
+				spriteSheet.getWidth() / numFrames,
 				spriteSheet.getHeight());
 		
-		TextureRegion[] walkFrames = new TextureRegion[8];
+		TextureRegion[] walkFrames = new TextureRegion[numFrames];
 		int index = 0;
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < numFrames; i++) {
 			walkFrames[index++] = tmp[0][i];
 		}
 		
-		walkingAnim = new Animation<TextureRegion>(0.07f, walkFrames);
+		walkingAnim = new Animation<TextureRegion>(0.10f, walkFrames);
 		
 		animTime = 0f;
 	}

@@ -33,17 +33,13 @@ public class Base {
 		loadSprite(type);
 		position = clampMapSize(positionX - (baseSprite.getWidth() / 2), positionY - (baseSprite.getHeight() / 2));
 		
-		game.createFox(position.x + baseSprite.getWidth(), position.y);
+		game.createEntity(game.ANIMAL_TYPE_BIRD, position.x + baseSprite.getWidth(), position.y);
 		
 		isoTransform = new Matrix4();
 		isoTransform.idt();
 		
 		isoTransform.scale((float)(Math.sqrt(2.0) / 2.0), (float)(Math.sqrt(2.0) / 4.0), 1.0f);
 		isoTransform.rotate(0.0f, 0.0f, 1.0f, -45);
-	}
-	
-	public Vector3 getCollision() {
-		return position;
 	}
 	
 	private Vector3 worldToIso(Vector3 vec) {
@@ -56,7 +52,7 @@ public class Base {
 	private Vector3 clampMapSize(float x, float y) {
 		Vector3 position = new Vector3(x, y, 0);
 		
-		if (x < 0) {
+		if (x < baseSprite.getWidth() / 2) {
 			position.x = baseSprite.getWidth() / 2;
 		} else if (x > mapWidth * scale) {
 			position.x = mapWidth * scale - 15;
@@ -75,7 +71,7 @@ public class Base {
 		aiTime += Gdx.graphics.getDeltaTime();
 		
 		if (aiTime > 10.0f) {
-			game.createFox(position.x + baseSprite.getWidth(), position.y + baseSprite.getHeight());
+			game.createEntity(game.randomInt(0, 1), position.x + baseSprite.getWidth(), position.y + baseSprite.getHeight());
 			aiTime = 0;
 		}
 	}

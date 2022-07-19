@@ -24,11 +24,14 @@ public class EagleSprout extends ApplicationAdapter {
 	TiledMap map;
 	TiledMapRenderer mapRenderer;
 	SpriteBatch batch;
-	ArrayList<Entity> Fox = new ArrayList<Entity>();
+	ArrayList<Entity> Animal = new ArrayList<Entity>();
 	Base Hub;
 	BitmapFont font;
 	Matrix4 projectionDefault;
 	Music bgMusic;
+	
+	final int ANIMAL_TYPE_BIRD = 0;
+	final int ANIMAL_TYPE_FOX = 1;
 	
 	final int mapWidth = 29;
 	final int mapHeight = 29;
@@ -75,11 +78,13 @@ public class EagleSprout extends ApplicationAdapter {
 		isoTransform.inv();
 	}
 	
+	public int randomInt(int min, int max) {
+		return min + (int)(Math.random() * ((max - min) + 1));
+	}
+	
 	private Vector3 worldToIso(Vector3 vec) {
 		screenPos.set(vec.x, vec.y, 0);
 		screenPos.mul(isoTransform);
-		//screenPos.x -= 50;
-		//screenPos.y -= 60;
 		
 		return screenPos;
 	}
@@ -93,8 +98,8 @@ public class EagleSprout extends ApplicationAdapter {
 		}
 	}
 	
-	public void createFox(float x, float y) {
-		Fox.add(new Entity(0, mapWidth, mapHeight, x, y));
+	public void createEntity(int type, float x, float y) {
+		Animal.add(new Entity(this, type, mapWidth, mapHeight, x, y));
 	}
 	
 	@Override
@@ -119,9 +124,9 @@ public class EagleSprout extends ApplicationAdapter {
 		
 		if (Hub != null) Hub.processBase();
 		
-		if (!Fox.isEmpty()) {
-    		for (int i = 0; i < Fox.size(); i++) {
-            	Fox.get(i).update();
+		if (!Animal.isEmpty()) {
+    		for (int i = 0; i < Animal.size(); i++) {
+            	Animal.get(i).update();
             }
 		}
 		
@@ -134,9 +139,9 @@ public class EagleSprout extends ApplicationAdapter {
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Bottom"));
 		mapRenderer.renderTileLayer((TiledMapTileLayer)map.getLayers().get("Mid"));
 		
-		if (!Fox.isEmpty()) {
-    		for (int i = 0; i < Fox.size(); i++) {
-            	Fox.get(i).render(batch);
+		if (!Animal.isEmpty()) {
+    		for (int i = 0; i < Animal.size(); i++) {
+            	Animal.get(i).render(batch);
             }
 		}
 		
@@ -167,9 +172,9 @@ public class EagleSprout extends ApplicationAdapter {
 	
 	@Override
 	public void dispose () {
-		if (!Fox.isEmpty()) {
-    		for (int i = 0; i < Fox.size(); i++) {
-            	Fox.get(i).dispose();
+		if (!Animal.isEmpty()) {
+    		for (int i = 0; i < Animal.size(); i++) {
+            	Animal.get(i).dispose();
             }
 		}
 		if (Hub != null) Hub.dispose();
